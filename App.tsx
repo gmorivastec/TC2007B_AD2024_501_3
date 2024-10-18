@@ -20,6 +20,7 @@ import React, { useState, useEffect } from 'react';
 
 import {
   Button,
+  Image,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -168,7 +169,16 @@ function App(): React.JSX.Element {
             });
           });
         }}
-      /> 
+      />
+      {
+        imageURL != "" ?
+        <Image
+          source={{uri: imageURL}}
+          style={{width: 100, height: 100}}
+        />
+        :
+        <Text>Loading image...</Text>
+      } 
     </SafeAreaView>
   );
 }
