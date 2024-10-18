@@ -13,6 +13,9 @@
 // follow instructions on setup from 
 // https://rnfirebase.io/
 
+// run your app:
+// npx react-native start
+
 import React, { useState, useEffect } from 'react';
 
 import {
@@ -35,6 +38,9 @@ function App(): React.JSX.Element {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [breed, setBreed] = useState("");
+  const [imageURL, setImageURL] = useState("");
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(user => {
@@ -46,6 +52,18 @@ function App(): React.JSX.Element {
     // as part of the component's cleanup
     return subscriber;
   }, []);
+
+  useEffect(() => {
+    // storage stuff
+    storage()
+    .ref("puppy1.jpg")
+    .getDownloadURL()
+    .then(url => {
+      console.log(url);
+      setImageURL(url);
+    });
+  }, []);
+  
   
   return (
     <SafeAreaView>
@@ -93,6 +111,64 @@ function App(): React.JSX.Element {
           auth().signOut();
         }}
       />
+      <TextInput 
+        placeholder='name'
+        onChangeText={text => {
+          setName(text);
+        }}
+      /> 
+      <TextInput
+        placeholder='breed'
+        onChangeText={text => {
+          setBreed(text);
+        }}
+      />
+
+      <Button 
+        title="Add New"
+        onPress={() => {
+          firestore()
+          .collection("perritos")
+          .add(
+            {
+              breed: breed,
+              name: name
+            }
+          ).then(newDoc => {
+            console.log("ADDED NEW DOC: " + newDoc.id);
+          });
+        }}
+      /> 
+      <Button 
+        title="Get All"
+        onPress={() => {
+          firestore()
+          .collection("perritos")
+          .get()
+          .then(querySnapshot => {
+            console.log("************ GETTING ALL");
+            // traverse through results 
+            querySnapshot.forEach(currentDoc => {
+              console.log(currentDoc.data());
+            });
+          });
+        }}
+      /> 
+      <Button 
+        title="Query"
+        onPress={() => {
+          firestore()
+          .collection("perritos")
+          .where("breed", "==", "Labrador")
+          .get()
+          .then(querySnapshot => {
+            console.log("**************** QUERY");
+            querySnapshot.forEach(currentDoc => {
+              console.log(currentDoc.data());
+            });
+          });
+        }}
+      /> 
     </SafeAreaView>
   );
 }
